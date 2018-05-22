@@ -1,22 +1,25 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 
-#define WIFI_AP "7mil300"
-#define WIFI_PASSWORD "latomocomotal"
+#define WIFI_AP "xxxxxxxx"
+#define WIFI_PASSWORD "xxxxxxxxx"
 
-#define userName "homeassistant"
-#define passWord "pAnAmA192"
+char mqttServer[] = "xxx.xxx.xxx.xxx";
+#define userName "xxxxxxxx"
+#define passWord "xxxxxxx"
 // Para conectar a thingsBoard poner el TOKEN en el userName y NULL en passWord
 // For using with thingsBoars use TOKEN as userName ans NULL in passWord 
 
-char mqttServer[] = "192.168.1.22";
+
 
 WiFiClient wifiClient;
 
 PubSubClient client(wifiClient);
 
 int status = WL_IDLE_STATUS;
+int ButtonPIN = 2;
 unsigned long lastRead;
+bool  pulsadorEnviado = false;
 
 void setup()
 {
@@ -27,7 +30,7 @@ void setup()
 
 //Define el GPIO2 como entrada
 //Define GPIO2 as input 
-pinMode(2, INPUT);
+pinMode(ButtonPIN, INPUT);
   
   lastRead = 0;
 
@@ -51,7 +54,7 @@ void loop()
 void readPin()    //Aca hacer la magia del timbre
 {
   Serial.println("Leyendo el pin del pulsador");
-  if (digitalRead(2) == LOW) {
+/*  if (digitalRead(ButtonPIN) == LOW) {
       // Prepare a JSON payload string
       String payload_boton = "1";    
       // Send payload
@@ -59,7 +62,18 @@ void readPin()    //Aca hacer la magia del timbre
       payload_boton.toCharArray( attributes, 100 );
       client.publish( "frente/pulsador1", attributes );
       Serial.println( attributes );
-  } 
+      lastSend = millis();  // para que si el boton se apreto no vuelva a chequear en 3 segundos.
+  }
+  */ 
+
+  Serial.println("Leyendo el pin del pulsador");
+  if (digitalRead(ButtonPIN) == LOW && !pulsadorEnviado) {
+    pulsadorEnviado = true;
+    client.publish( "caja001/pulsador", "1");
+  } else if (digitalRead(ButtonPIN) == HIGH && pulsadorEnviado) {
+    pulsadorEnviado = false;
+  }
+
 }
 
 
